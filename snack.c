@@ -1,3 +1,4 @@
+
 #include<termio.h>
 #include<stdio.h>
 #include<unistd.h>
@@ -6,8 +7,8 @@
 #include <time.h>
 
 #define _XOPEN_SOURCE 600
-#define X 20
-#define Y 40
+#define X 12
+#define Y 30
 
 struct coordinate{
     int x; //横坐标
@@ -57,6 +58,15 @@ int draw(struct coordinate *s, int *food_x, int *food_y) {
         printf("GAME OVER!!!\n");
         return 1;
     }
+    if (now_length > 2){
+       int iter;
+       for (iter = 0; iter < now_length - 1; iter++){
+           if (((s + iter) -> x) == ((s + now_length - 1) -> x) && (((s + iter) -> y) == ((s + now_length - 1) -> y))) {
+               printf("GAME OVER!!!\n");
+               return 1;
+           }
+       }
+    }
     int i, j;
     for(i = 0; i < X; i++){
         for(j = 0; j < Y; j++){
@@ -87,19 +97,21 @@ int draw(struct coordinate *s, int *food_x, int *food_y) {
         }
 
         printf("%s", "\n");
-              //int iter;
-              //for (iter = 0; iter < now_length; iter++){
-              //   printf("(%d,%d) ", (s + iter) -> x, (s + iter) -> y);
-              //}
     }
+
+    printf("%s", "\n");
+    printf("_______________________________%s", "\n");
+    printf("得分：%d\n", now_length - 1);
+
+
     return 0;
 }
 
 
 int run() {
     srand(time(NULL));
-    int fx = rand() % (X - 2);
-    int fy = rand() % (Y - 2);
+    int fx = rand() % (X - 3) + 1;
+    int fy = rand() % (Y - 3) + 1;
     int *food_x = &fx;
     int *food_y = &fy;
     char tmp;
@@ -110,6 +122,18 @@ int run() {
         y = (snack + now_length - 1) -> y;
         usleep(200000);
         tmp = kbhit(lastDirection);
+        if (lastDirection == 'w' && tmp == 's') {
+            tmp = 'w';
+        }
+        else if (lastDirection == 'a' && tmp == 'd') {
+            tmp = 'a';
+        }
+        else if (lastDirection == 's' && tmp == 'w') {
+            tmp = 's';
+        }
+        else if (lastDirection == 'd' && tmp == 'a') {
+            tmp = 'w';
+        }
         switch(tmp) {
             case 'w':
                 x--;
@@ -152,9 +176,10 @@ int run() {
         flushSnack(snack, x, y);
 
         while(1){
+
             if (((snack + (now_length - 1)) -> x) == *food_x && ((snack + (now_length - 1)) -> y) == *food_y){
-                fx = rand() % (X - 2);
-                fy = rand() % (Y - 2);
+                fx = rand() % (X - 3) + 1;
+                fy = rand() % (Y - 3) + 1;
                 food_x = &fx;
                 food_y = &fy;
                 //增加结构体数组 重新生成
