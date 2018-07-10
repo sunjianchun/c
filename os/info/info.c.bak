@@ -1,0 +1,108 @@
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/sched.h>
+#include <linux/list.h>
+#include <linux/string.h>
+
+char *SPLIT = "------------------------";
+static __init int print_pid(void)
+{
+    struct task_struct *task,*p;
+    struct list_head *pos;
+    int total_count = 0,  run_count = 0, inter_count = 0, uninter_count = 0, dead_count = 0, zombie_count = 0, other_count = 0;
+    struct task_struct run_name (*task_struct)[100];
+    char inter_name[100][50];
+    char uninter_name[100][50];
+    char dead_name[100][50];
+    char zombie_name[100][50];
+    char other_name[100][50];
+    int i;
+    
+    task=&init_task;
+    list_for_each(pos,&task->tasks)
+    {
+        p=list_entry(pos, struct task_struct,tasks);
+        total_count++;
+        switch (p -> state) {
+            case TASK_RUNNING:
+                strcpy(run_name[run_count], p -> comm);
+                run_count++;
+                break;
+            case TASK_INTERRUPTIBLE:
+                strcpy(inter_name[inter_count], p -> comm);
+                inter_count++;
+                break;
+            case TASK_UNINTERRUPTIBLE:
+                strcpy(uninter_name[uninter_count], p -> comm);
+                uninter_count++;
+                break;
+            case EXIT_DEAD:
+                strcpy(dead_name[dead_count], p -> comm);
+                dead_count++;
+                break;
+            case EXIT_ZOMBIE:
+                strcpy(zombie_name[zombie_count], p -> comm);
+                zombie_count++;
+                break;
+            default:
+                strcpy(other_name[other_count], p -> comm);
+                other_count++;
+                break;
+        }
+    }
+    
+    printk("系统的进程信息如下：\n");
+    printk("%s\n", SPLIT);
+
+    printk("TASK_RUNNING\t%d\n", run_count);
+    printk("%s\n", SPLIT);
+    for(i = 0; i < run_count; i++) {
+        printk("name\t%s\t", run_name[i]);
+    }
+    printk("\n", SPLIT);
+
+    printk("TASK_INTERRUPTIBLE\t%d\n", inter_count);
+    printk("%s\n", SPLIT);
+    for(i = 0; i < inter_count; i++) {
+        printk("name\t%s\t", inter_name[i]);
+    }
+    printk("\n");
+
+    printk("TASK_UNINTERRUPTIBLE\t%d\n", uninter_count);
+    printk("%s\n", SPLIT);
+    for(i = 0; i < uninter_count; i++) {
+        printk("name\t%s\t", uninter_name[i]);
+    }
+    printk("\n");
+
+    printk("EXIT_DEAD\t%d\n", dead_count);
+    printk("%s\n", SPLIT);
+    for(i = 0; i < dead_count; i++) {
+        printk("name\t%s\t", dead_name[i]);
+    }
+    printk("\n");
+
+    printk("EXIT_ZOMBIE\t%d\n", zombie_count);
+    printk("%s\n", SPLIT);
+    for(i = 0; i < zombie_count; i++) {
+        printk("name\t%s\t", zombie_name[i]);
+    }
+    printk("\n");
+
+    printk("TASK_OTHER\t%d\n", other_count);
+    printk("%s\n", SPLIT);
+    for(i = 0; i < other_count; i++) {
+        printk("name\t%s\t", other_name[i]);
+    }
+    printk("\n");
+
+    printk("\t\t\t\t总进程数%d\n", total_count);
+    return 0;
+}
+static __exit void print_exit(void)
+{
+    printk("<0>end!\n");
+}
+module_init(print_pid);
+module_exit(print_exit);

@@ -1,0 +1,10 @@
+cc = gcc
+#first_mod : first_mod.o
+#	cc -o first_mod first_mod.o
+first_mod.o : first_mod.c
+	#cc -I/usr/src/kernels/$(shell uname -r)/include first_mod.c
+	cc -I/usr/src/kernels/2.6.32-754.el6.x86_64/include first_mod.c
+.PHONY : clean
+#clean :
+#	-rm first_mod.o 
+
